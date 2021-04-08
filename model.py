@@ -1,5 +1,8 @@
 from sqlalchemy import Column, VARCHAR, Integer
 from sqlalchemy.ext.declarative import declarative_base
+
+from dbpool import Pool
+
 Model = declarative_base()
 
 
@@ -31,6 +34,24 @@ class Phone(Model):
         "mysql_engine": "InnoDB",
         "comment": "号段信息"
     }
+
+
+def get_area():
+    area_map = {}
+    with Pool.scope_session() as session:
+        for province, city, area_code, in session.query(
+                Region.province, Region.city, Region.area_code):
+            area_map[f"{province}、{city}"] = area_code
+    return area_map
+
+
+def insert_to_db(infos: list, area_map: dict):
+    with Pool.scope_session() as session:
+        session.bulk_insert_mappings(Phone, [{
+            'number': info[0],
+            'area_code': area_map.get(info[1]),
+            'operator_id': info[2]
+        } for info in infos])
 
 
 if __name__ == '__main__':
