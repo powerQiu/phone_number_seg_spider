@@ -1,0 +1,5 @@
+deploy:
+- type: git
+  # 下方的gh_token会被.travis.yml中sed命令替换
+  repo:  https://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@github.com/powerQiu/phone_number_seg_spider.git
+  branch: main
